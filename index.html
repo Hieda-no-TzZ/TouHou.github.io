@@ -1,0 +1,279 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>东方角色主题曲随机播放器</title>
+    <meta name="description" content="东方角色主题曲随机播放器">
+    <style type="text/css">
+        table {
+            font-family: verdana, arial, sans-serif;
+            font-size: 15px;
+            color: #333333;
+            border-width: 1px;
+            border-color: #a9c6c9;
+            border-collapse: collapse;
+            margin: auto;
+        }
+
+        th,
+        td {
+            border: solid 1px #6D6D6D;
+            padding: 5px 10px;
+        }
+
+        .mt-sm {
+            margin-top: 8px;
+        }
+
+        body {
+            background: #f4f4f4;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            /* width: 1024px; */
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        #answer {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>东方角色主题曲随机播放器</h1>
+        <audio controls="controls" src="" id="player" type="audio/ogg" loop></audio>
+        <br>
+        <button onclick="javascript:randomSelect()">随机选择</button>
+        <button onclick="javascript:answer()">显示答案</button>
+        <div id="answer">
+            <p id='作品编号'></p>
+            <p id='作品名称'></p>
+            <p id='BGM中文标题'></p>
+            <p id='BGM日文标题'></p>
+            <p id='角色'></p>
+        </div>
+        <div class="mt-sm">
+            <input type="file" id="file" style="display:none;" />
+            <input type="file" id="cardfile" style="display:none;" />
+            <button onclick="javascript:selectFile()">加载本地excel文件</button>
+            <button onclick="javascript:loadCards()">加载卡牌列表</button>
+            <button onclick="javascript:chooseBGMs()">显示选择</button>
+            <button onclick="javascript:displayAll()">全部显示</button>
+            <br>
+            输入角色名进行筛选：<input type="text" name="filter" id="filter" oninput="javascript:filter()">
+        </div>
+
+        <div id="result">
+            <table id='BGMtable'></table>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://hieda-no-tzz.github.io/TouHou/jquery.min.js"></script>
+    <script type="text/javascript" src="https://hieda-no-tzz.github.io/TouHou/xlsx.core.min.js"></script>
+    <script type="text/javascript">
+        function selectFile() {
+            document.getElementById('file').click();
+        }
+        function loadCards() {
+            document.getElementById('cardfile').click();
+        }
+        function chooseBGMs() {
+            var checkbox = document.getElementsByClassName('checkbox');
+            var table = document.getElementById('BGMtable');
+            var selected = ''
+            for (i = 1; i < checkbox.length; ++i) {
+                if (checkbox[i].checked) {
+                    table.rows[i].style.display = ''
+                } else {
+                    table.rows[i].style.display = 'none'
+                }
+            }
+        }
+
+        function displayAll() {
+            var table = document.getElementById('BGMtable');
+            for (i = 1; i < table.rows.length; ++i) {
+                table.rows[i].style.display = ''
+            }
+        }
+
+        function readWorkbookFromLocalFile(file, callback) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var data = e.target.result;
+                var workbook = XLSX.read(data, { type: 'binary' });
+                if (callback) callback(workbook);
+            };
+            reader.readAsBinaryString(file);
+        }
+
+        function readWorkbook(workbook) {
+            var sheetNames = workbook.SheetNames; // 工作表名称集合
+            var worksheet = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
+            var csv = XLSX.utils.sheet_to_csv(worksheet);
+            // document.getElementById('result').innerHTML = csv2table(csv);
+            modifyTable(csv);
+        }
+
+        function modifyTable(csv) {
+            table = document.getElementById('BGMtable');
+            var rows = csv.split('\n');
+            var content = '';
+            rows.pop();
+            rows.forEach(function (row, idx) {
+                var columns = row.split(',');
+
+                if (idx == 0) columns.unshift('');
+                else columns.unshift(idx); // 添加行索引
+                content += '<tr>';
+                columns.forEach(function (column) {
+                    content += '<td>' + column + '</td>';
+                });
+                if (idx != 0) content += '<td><input type="checkbox" class="checkbox" id=' + idx + '></td>';
+                else content += '<td><input type="checkbox" class="checkbox" onclick="javascript:checkAll()" id="checkAll" value="全选"></td>'
+                content += '</tr>';
+            });
+            table.innerHTML = content;
+        }
+
+        $(function () {
+            document.getElementById('file').addEventListener('change', function (e) {
+                var files = e.target.files;
+                if (files.length == 0) return;
+                var f = files[0];
+                if (!/\.xlsx$/g.test(f.name)) {
+                    alert('仅支持读取xlsx格式！');
+                    return;
+                }
+                readWorkbookFromLocalFile(f, function (workbook) {
+                    readWorkbook(workbook);
+                });
+            });
+        });
+
+        $(function () {
+            document.getElementById('cardfile').addEventListener('change', function (e) {
+                var files = e.target.files;
+                var table = document.getElementById('BGMtable')
+                var rows = table.rows
+                var checkbox = document.getElementsByClassName('checkbox')
+                for (i = 0; i < files.length; ++i) {
+                    var f = files[i]
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        var cards = this.result.split('\n')
+                        for (j = 1; j < rows.length; ++j) {
+                            var cellname = rows[j].cells[5].innerHTML
+                            for (k = 0; k < cards.length; ++k) {
+                                if (cellname.trim() == cards[k].trim()) {
+                                    checkbox[j].checked = true
+                                }
+                            }
+                        }
+                    }
+                    reader.readAsText(f);
+                }
+            })
+        })
+
+        function checkAll() {
+            var e = document.getElementById('checkAll')
+            var checkboxs = document.getElementsByClassName('checkbox');
+            var rows = document.getElementById('BGMtable').rows
+            for (i = 1; i < checkboxs.length; ++i) {
+                if (rows[i].style.display != 'none') { // 只操作当前筛选项
+                    checkboxs[i].checked = e.checked
+                }
+            }
+        }
+
+        function filter() {
+            var name = document.getElementById('filter').value
+            var table = document.getElementById('BGMtable')
+            var rows = table.rows
+            for (i = 1; i < rows.length; ++i) {
+                var cellname = rows[i].cells[5].innerHTML
+                if (cellname.search(name) < 0) {
+                    rows[i].style.display = 'none'
+                } else {
+                    rows[i].style.display = ''
+                }
+            }
+            var e = document.getElementById('checkAll')
+            e.checked = false
+        }
+
+        function randomSelect() {
+            var audio = document.getElementById('player')
+            loadAudio(audio, function () {
+                var duration = audio.duration
+                audio.currentTime = Math.random() * duration
+            })
+        }
+
+        function loadAudio(audio, callback) {
+            var table = document.getElementById('BGMtable')
+            var checkbox = document.getElementsByClassName('checkbox')
+            var rows = table.rows
+            var bgms = []
+            for (i = 1; i < rows.length; ++i) {
+                if (checkbox[i].checked && rows[i].style.display != 'none') {
+                    bgms.push(i)
+                }
+            }
+            var idx = bgms[Math.floor(Math.random() * bgms.length)]
+            rows[idx].style.display = 'none'
+
+            var game_no = document.getElementById('作品编号')
+            var game_name = document.getElementById('作品名称')
+            var bgm_jpn_title = document.getElementById('BGM中文标题')
+            var bgm_chn_title = document.getElementById('BGM日文标题')
+            var girl_name = document.getElementById('角色')
+
+            game_no.hidden = true
+            game_name.hidden = true
+            bgm_jpn_title.hidden = true
+            bgm_chn_title.hidden = true
+            girl_name.hidden = true
+
+            game_no.innerHTML = rows[idx].cells[1].innerHTML
+            game_name.innerHTML = rows[idx].cells[2].innerHTML
+            bgm_jpn_title.innerHTML = rows[idx].cells[3].innerHTML
+            bgm_chn_title.innerHTML = rows[idx].cells[4].innerHTML
+            girl_name.innerHTML = rows[idx].cells[5].innerHTML
+
+            dirname = '[' + rows[idx].cells[1].innerHTML + '] ' + rows[idx].cells[2].innerHTML
+            // audio.src = 'mp3\\' + dirname + '\\' + rows[idx].cells[4].innerHTML + '.mp3' // 本地播放
+            audio.src = 'http://music.163.com/song/media/outer/url?id=' + rows[idx].cells[6].innerHTML
+            audio.load()
+            audio.onloadedmetadata = callback
+        }
+
+        function answer() {
+            var game_no = document.getElementById('作品编号')
+            var game_name = document.getElementById('作品名称')
+            var bgm_jpn_title = document.getElementById('BGM中文标题')
+            var bgm_chn_title = document.getElementById('BGM日文标题')
+            var girl_name = document.getElementById('角色')
+            game_no.hidden = false
+            game_name.hidden = false
+            bgm_jpn_title.hidden = false
+            bgm_chn_title.hidden = false
+            girl_name.hidden = false
+        }
+    </script>
+    <script type="text/javascript">
+        
+    </script>
+</body>
+
+</html>
