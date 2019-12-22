@@ -52,7 +52,7 @@
 <body>
     <div class="container">
         <h1>东方角色主题曲随机播放器</h1>
-        <h4>说明：下载下方两个列表后依次点击“加载本地excel文件”和“加载卡牌列表”</h4>
+        <h4>说明：下载角色曲列表和卡牌任务列表后依次点击“加载角色曲列表”和“加载卡牌人物列表”</h4>
         <a href="角色曲列表.xlsx" download="角色曲列表.xlsx">下载角色曲列表</a>
         <a href="幻想符式绘.txt" download title="幻想符式绘.txt">幻想符式绘</a>
         <a href="恋心浮绘录-觉.txt" download title="恋心浮绘录-觉.txt">恋心浮绘录-觉</a>
@@ -72,8 +72,8 @@
         <div class="mt-sm">
             <input type="file" id="file" style="display:none;" />
             <input type="file" id="cardfile" style="display:none;" />
-            <button onclick="javascript:selectFile()">加载本地excel文件</button>
-            <button onclick="javascript:loadCards()">加载卡牌列表</button>
+            <button onclick="javascript:selectFile()">加载角色曲列表</button>
+            <button onclick="javascript:loadCards()">加载卡牌人物列表</button>
             <button onclick="javascript:addRandom()">随机添加10首</button>
             <button onclick="javascript:chooseBGMs()">显示选择</button>
             <button onclick="javascript:displayAll()">全部显示</button>
