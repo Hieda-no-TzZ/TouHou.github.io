@@ -15,7 +15,9 @@
             border-collapse: collapse;
             margin: auto;
         }
-
+        a {
+            font-size: 24px;
+        }
         th,
         td {
             border: solid 1px #6D6D6D;
@@ -44,6 +46,11 @@
         #answer {
             text-align: center;
         }
+
+        button {
+            font-size: 20px;
+        }
+
     </style>
     <script type="text/javascript" src="https://hieda-no-tzz.github.io/TouHou/jquery.min.js"></script>
     <script type="text/javascript" src="https://hieda-no-tzz.github.io/TouHou/xlsx.core.min.js"></script>
@@ -52,7 +59,7 @@
 <body>
     <div class="container">
         <h1>东方角色主题曲随机播放器</h1>
-        <h4>说明：下载角色曲列表和卡牌任务列表后依次点击“加载角色曲列表”和“加载卡牌人物列表”</h4>
+        <h2>说明：下载角色曲列表和卡牌任务列表后依次点击“加载角色曲列表”和“加载卡牌人物列表”</h4>
         <a href="角色曲列表.xlsx" download="角色曲列表.xlsx">下载角色曲列表</a>
         <a href="幻想符式绘.txt" download title="幻想符式绘.txt">幻想符式绘</a>
         <a href="恋心浮绘录-觉.txt" download title="恋心浮绘录-觉.txt">恋心浮绘录-觉</a>
@@ -78,14 +85,15 @@
             <button onclick="javascript:chooseBGMs()">显示选择</button>
             <button onclick="javascript:displayAll()">全部显示</button>
             <br>
-            输入角色名进行筛选：<input type="text" name="filter" id="filter" oninput="javascript:filter()">
+            <p style="font-size:20px" white-space="nowrap">输入角色名进行筛选：
+            <input type="text" name="filter" id="filter" oninput="javascript:filter()" style="width:200px;height:30px;"></p>
         </div>
 
         <div id="result">
             <table id='BGMtable'></table>
         </div>
     </div>
-
+    
     <script type="text/javascript">
         function selectFile() {
             document.getElementById('file').click();
