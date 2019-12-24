@@ -79,8 +79,8 @@
         <div class="mt-sm">
             <input type="file" id="file" style="display:none;" />
             <input type="file" id="cardfile" style="display:none;" />
-            <button onclick="javascript:selectFile()">加载角色曲列表</button>
-            <button onclick="javascript:loadCards()">加载卡牌人物列表</button>
+            <button onclick="javascript:selectFile()">加载本地角色曲列表</button>
+            <button onclick="javascript:loadCards()">加载本地卡牌人物列表</button>
             <button onclick="javascript:addRandom()">随机添加10首</button>
             <button onclick="javascript:chooseBGMs()">显示选择</button>
             <button onclick="javascript:displayAll()">全部显示</button>
@@ -95,6 +95,22 @@
     </div>
     
     <script type="text/javascript">
+        readWorkbookFromRemoteFile('https://hieda-no-tzz.github.io/TouHou/角色曲列表.xlsx', function (workbook) {
+            readWorkbook(workbook);
+        });
+        function readWorkbookFromRemoteFile(url, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('get', url, true);
+            xhr.responseType = 'arraybuffer';
+            xhr.onload = function (e) {
+                if (xhr.status == 200) {
+                    var data = new Uint8Array(xhr.response)
+                    var workbook = XLSX.read(data, { type: 'array' });
+                    if (callback) callback(workbook);
+                }
+            };
+            xhr.send();
+        }
         function selectFile() {
             document.getElementById('file').click();
         }
