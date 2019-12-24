@@ -1,0 +1,29 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>无标题文档</title>
+    <script language="javascript">
+        var xmlReq;
+        function show() {
+            xmlReq = new XMLHttpRequest();
+
+            var url = "https://hieda-no-tzz.github.io/TouHou/幻想符式绘.txt";
+            xmlReq.open("get", url, true);
+            xmlReq.onreadystatechange = result;
+            xmlReq.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            xmlReq.send();
+        }
+        function result() {
+            var msg = xmlReq.responseText;
+            console.log(msg);
+        }
+    </script>
+</head>
+
+<body>
+    <input type="submit" onclick="show()" />
+</body>
+
+</html>
