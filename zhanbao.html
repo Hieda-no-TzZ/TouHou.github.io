@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>群活战报</title>
+    <style type="text/css">
+        table {
+            font-family: verdana, arial, sans-serif;
+            font-size: 15px;
+            color: #333333;
+            border-width: 1px;
+            border-color: #a9c6c9;
+            border-collapse: collapse;
+            margin: auto;
+        }
+
+        a {
+            font-size: 24px;
+        }
+
+        th,
+        td {
+            border: solid 1px #6D6D6D;
+            padding: 5px 10px;
+        }
+
+        .mt-sm {
+            margin-top: 8px;
+        }
+
+        body {
+            background: #f4f4f4;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            /* width: 1024px; */
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        #answer {
+            text-align: center;
+        }
+
+        button {
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="result">
+            <table id='BGMtable'></table>
+        </div>
+    </div>
+
+</body>
+<script type="text/javascript">
+    // 自动加载远程excel
+    readWorkbookFromRemoteFile('https://hieda-no-tzz.github.io/TouHou/2020群活.xlsx', function (workbook) {
+        readWorkbook(workbook);
+    });
+    function readWorkbookFromRemoteFile(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', url, true);
+        xhr.responseType = 'arraybuffer';
+        xhr.onload = function (e) {
+            if (xhr.status == 200) {
+                var data = new Uint8Array(xhr.response)
+                var workbook = XLSX.read(data, { type: 'array' });
+                if (callback) callback(workbook);
+            }
+        };
+        xhr.send();
+    }
+    function readWorkbook(workbook) {
+            var sheetNames = workbook.SheetNames; // 工作表名称集合
+            var worksheet = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
+            var csv = XLSX.utils.sheet_to_csv(worksheet);
+            // document.getElementById('result').innerHTML = csv2table(csv);
+            modifyTable(csv);
+        }
+        function modifyTable(csv) {
+            table = document.getElementById('BGMtable');
+            var rows = csv.split('\n');
+            var content = '';
+            rows.pop();
+            rows.forEach(function (row, idx) {
+                var columns = row.split(',');
+
+                if (idx == 0) columns.unshift('');
+                else columns.unshift(idx); // 添加行索引
+                content += '<tr>';
+                columns.forEach(function (column) {
+                    content += '<td>' + column + '</td>';
+                });
+                content += '</tr>';
+            });
+            table.innerHTML = content;
+        }
+</script>
+</html>
