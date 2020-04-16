@@ -59,7 +59,9 @@
 <body>
     <div class="container">
         <div id="result">
-            <table id='BGMtable'></table>
+            <table id='yyctable'></table>
+            <br>
+            <table id='gxstable'></table>
         </div>
     </div>
 
@@ -84,21 +86,23 @@
     }
     function readWorkbook(workbook) {
             var sheetNames = workbook.SheetNames; // 工作表名称集合
-            var worksheet = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
+            var worksheet = workbook.Sheets[sheetNames[0]];
             var csv = XLSX.utils.sheet_to_csv(worksheet);
-            // document.getElementById('result').innerHTML = csv2table(csv);
-            modifyTable(csv);
+            modifyTable(csv, "yyctable");
+            worksheet = workbook.Sheets[sheetNames[1]];
+            csv = XLSX.utils.sheet_to_csv(worksheet);
+            modifyTable(csv, "gxstable");
         }
-        function modifyTable(csv) {
-            table = document.getElementById('BGMtable');
+        function modifyTable(csv, sheetname) {
+            table = document.getElementById(sheetname);
             var rows = csv.split('\n');
             var content = '';
             rows.pop();
             rows.forEach(function (row, idx) {
                 var columns = row.split(',');
 
-                if (idx == 0) columns.unshift('');
-                else columns.unshift(idx); // 添加行索引
+                // if (idx == 0) columns.unshift('');
+                // else columns.unshift(idx); // 添加行索引
                 content += '<tr>';
                 columns.forEach(function (column) {
                     content += '<td>' + column + '</td>';
