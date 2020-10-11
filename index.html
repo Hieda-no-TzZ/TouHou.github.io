@@ -164,8 +164,13 @@
                 if (idx == 0) columns.unshift('');
                 else columns.unshift(idx); // 添加行索引
                 content += '<tr>';
-                columns.forEach(function (column) {
-                    content += '<td>' + column + '</td>';
+                
+                columns.forEach(function (column, index) {
+                    if (index==0) {
+                        content += '<td><button onmouseover="javascript:check('+idx+')">' + column + '</button></td>'
+                    } else {
+                        content += '<td>' + column + '</td>';
+                    }
                 });
                 if (idx != 0) content += '<td><input type="checkbox" class="checkbox" id=' + idx + '></td>';
                 else content += '<td><input type="checkbox" class="checkbox" onclick="javascript:checkAll()" id="checkAll" value="全选"></td>'
@@ -360,6 +365,11 @@
                 }
             };
             xhr.send();
+        }
+        // 鼠标移动到按钮上选中复选框
+        function check(idx) {
+            var checkboxs = document.getElementsByClassName('checkbox');
+            checkboxs[idx].checked = !checkboxs[idx].checked;
         }
     </script>
     <script type="text/javascript">
