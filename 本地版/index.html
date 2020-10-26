@@ -53,20 +53,16 @@
             font-size: 20px;
         }
     </style>
-    <script type="text/javascript" src="./jquery.min.js"></script>
-    <script type="text/javascript" src="./xlsx.core.min.js"></script>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="xlsx.core.min.js"></script>
 </head>
 
 <body>
     <div class="container">
         <h1>东方角色主题曲随机播放器</h1>
-        <h2>说明：下载角色曲列表和卡牌任务列表后依次点击“加载角色曲列表”和“加载卡牌人物列表”</h4>
-            <a href="角色曲列表.xlsx" download="角色曲列表.xlsx">下载角色曲列表</a>
-            <a href="幻想符式绘.txt" download title="幻想符式绘.txt">幻想符式绘</a>
-            <a href="恋心浮绘录-觉.txt" download title="恋心浮绘录-觉.txt">恋心浮绘录-觉</a>
-            <a href="恋心浮绘录-恋.txt" download title="恋心浮绘录-恋.txt">恋心浮绘录-恋</a>
-            <br>
-            <audio controls="controls" src="" id="player" type="audio/ogg" loop></audio>
+        <h2>说明：加载本地角色曲列表-加载本地卡牌人物列表-显示选择-|:随机播放-显示答案:|</h4>
+            <a href="" id='forDownload' hidden download target="_blank">下载</a>
+            <audio controls="controls" src="http://music.163.com/song/media/outer/url?id=22766017" id="player" type="audio/ogg" loop></audio>
             <br>
             <button onclick="javascript:randomSelect()">随机选择</button>
             <button onclick="javascript:answer()">显示答案</button>
@@ -81,7 +77,7 @@
                 <input type="file" id="file" style="display:none;" />
                 <input type="file" id="cardfile" style="display:none;" />
                 <button onclick="javascript:selectFile()">加载本地角色曲列表</button>
-                <button onclick="javascript:loadCards()">加载本地卡牌人物列表</button>
+                <button onclick="javascript:loadLocalCardfile()">加载本地卡牌人物列表</button>
                 <button onclick="javascript:addRandom()">随机添加10首</button>
                 <button onclick="javascript:chooseBGMs()">显示选择</button>
                 <button onclick="javascript:displayAll()">全部显示</button>
@@ -95,7 +91,9 @@
                 <table id='BGMtable'></table>
             </div>
     </div>
+
     <script type="text/javascript">
+        // 自动加载远程excel
         readWorkbookFromRemoteFile('https://hieda-no-tzz.github.io/TouHou/角色曲列表.xlsx', function (workbook) {
             readWorkbook(workbook);
         });
@@ -112,72 +110,10 @@
             };
             xhr.send();
         }
-
+        // 加载本地excel文件
         function selectFile() {
             document.getElementById('file').click();
         }
-        function loadCards() {
-            document.getElementById('cardfile').click();
-        }
-        function chooseBGMs() {
-            var checkbox = document.getElementsByClassName('checkbox');
-            var table = document.getElementById('BGMtable');
-            var selected = ''
-            for (i = 1; i < checkbox.length; ++i) {
-                if (checkbox[i].checked) {
-                    table.rows[i].style.display = ''
-                } else {
-                    table.rows[i].style.display = 'none'
-                }
-            }
-        }
-
-        function displayAll() {
-            var table = document.getElementById('BGMtable');
-            for (i = 1; i < table.rows.length; ++i) {
-                table.rows[i].style.display = ''
-            }
-        }
-
-        function readWorkbookFromLocalFile(file, callback) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                var data = e.target.result;
-                var workbook = XLSX.read(data, { type: 'binary' });
-                if (callback) callback(workbook);
-            };
-            reader.readAsBinaryString(file);
-        }
-
-        function readWorkbook(workbook) {
-            var sheetNames = workbook.SheetNames; // 工作表名称集合
-            var worksheet = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
-            var csv = XLSX.utils.sheet_to_csv(worksheet);
-            // document.getElementById('result').innerHTML = csv2table(csv);
-            modifyTable(csv);
-        }
-
-        function modifyTable(csv) {
-            table = document.getElementById('BGMtable');
-            var rows = csv.split('\n');
-            var content = '';
-            rows.pop();
-            rows.forEach(function (row, idx) {
-                var columns = row.split(',');
-
-                if (idx == 0) columns.unshift('');
-                else columns.unshift(idx); // 添加行索引
-                content += '<tr>';
-                columns.forEach(function (column) {
-                    content += '<td>' + column + '</td>';
-                });
-                if (idx != 0) content += '<td><input type="checkbox" class="checkbox" id=' + idx + '></td>';
-                else content += '<td><input type="checkbox" class="checkbox" onclick="javascript:checkAll()" id="checkAll" value="全选"></td>'
-                content += '</tr>';
-            });
-            table.innerHTML = content;
-        }
-
         $(function () {
             document.getElementById('file').addEventListener('change', function (e) {
                 var files = e.target.files;
@@ -192,7 +128,52 @@
                 });
             });
         });
+        function readWorkbookFromLocalFile(file, callback) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var data = e.target.result;
+                var workbook = XLSX.read(data, { type: 'binary' });
+                if (callback) callback(workbook);
+            };
+            reader.readAsBinaryString(file);
+        }
+        function readWorkbook(workbook) {
+            var sheetNames = workbook.SheetNames; // 工作表名称集合
+            var worksheet = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
+            var csv = XLSX.utils.sheet_to_csv(worksheet);
+            // document.getElementById('result').innerHTML = csv2table(csv);
+            modifyTable(csv);
+        }
+        function modifyTable(csv) {
+            table = document.getElementById('BGMtable');
+            var rows = csv.split('\n');
+            var content = '';
+            rows.pop();
+            rows.forEach(function (row, idx) {
+                var columns = row.split(',');
 
+                if (idx == 0) columns.unshift('');
+                else columns.unshift(idx); // 添加行索引
+                content += '<tr>';
+                
+                columns.forEach(function (column, index) {
+                    if (index==0) {
+                        content += '<td>' + column + '</button></td>'
+                    } else {
+                        content += '<td>' + column + '</td>';
+                    }
+                });
+                if (idx != 0) content += '<td><input type="checkbox" class="checkbox" id=' + idx + '></td>';
+                else content += '<td><input type="checkbox" class="checkbox" onclick="javascript:checkAll()" id="checkAll" value="全选"></td>'
+                content += '</tr>';
+            });
+            table.innerHTML = content;
+        }
+
+        // 加载本地卡牌列表
+        function loadLocalCardfile() {
+            document.getElementById('cardfile').click();
+        }
         const shuffle = ([...arr]) => {
             let m = arr.length;
             while (m) {
@@ -201,37 +182,58 @@
             }
             return arr;
         };
-
         $(function () {
             document.getElementById('cardfile').addEventListener('change', function (e) {
                 var files = e.target.files;
-                var table = document.getElementById('BGMtable')
-                var rows = table.rows
-                var checkbox = document.getElementsByClassName('checkbox')
                 for (i = 0; i < files.length; ++i) {
                     var f = files[i]
                     var reader = new FileReader();
                     reader.onload = function () {
                         var cards = this.result.split('\n')
-                        var order = Array.from(Array(rows.length - 1), (v, k) => k + 1);
-                        order = shuffle(order)
-                        order.forEach(function (j) {
-                            var cellname = rows[j].cells[5].innerHTML
-                            for (k = 0; k < cards.length; ++k) {
-                                if (cellname.trim() == cards[k].trim()) {
-                                    console.log(j)
-                                    checkbox[j].checked = true
-                                    cards.splice(k, 1)
-                                    break
-                                }
-                            }
-                        })
+                        loadCards(cards)
                     }
                     reader.readAsText(f);
                 }
             })
         })
-
+        function loadCards(cards) {
+            var table = document.getElementById('BGMtable')
+            var rows = table.rows
+            var checkbox = document.getElementsByClassName('checkbox')
+            var order = Array.from(Array(rows.length - 1), (v, k) => k + 1);
+            order = shuffle(order)
+            order.forEach(function (j) {
+                var cellname = rows[j].cells[5].innerHTML
+                for (k = 0; k < cards.length; ++k) {
+                    if (cellname.trim() == cards[k].trim()) {
+                        checkbox[j].checked = true
+                        cards.splice(k, 1)
+                        break
+                    }
+                }
+            })
+        }
+        // 显示选择
+        function chooseBGMs() {
+            var checkbox = document.getElementsByClassName('checkbox');
+            var table = document.getElementById('BGMtable');
+            var selected = ''
+            for (i = 1; i < checkbox.length; ++i) {
+                if (checkbox[i].checked) {
+                    table.rows[i].style.display = ''
+                } else {
+                    table.rows[i].style.display = 'none'
+                }
+            }
+        }
+        // 全部显示
+        function displayAll() {
+            var table = document.getElementById('BGMtable');
+            for (i = 1; i < table.rows.length; ++i) {
+                table.rows[i].style.display = ''
+            }
+        }
+        // 全选按钮
         function checkAll() {
             var e = document.getElementById('checkAll')
             var checkboxs = document.getElementsByClassName('checkbox');
@@ -242,7 +244,7 @@
                 }
             }
         }
-
+        // 搜索筛选
         function filter() {
             var name = document.getElementById('filter').value
             var table = document.getElementById('BGMtable')
@@ -258,7 +260,7 @@
             var e = document.getElementById('checkAll')
             e.checked = false
         }
-
+        // 随机播放
         function randomSelect() {
             var audio = document.getElementById('player')
             loadAudio(audio, function () {
@@ -266,7 +268,6 @@
                 audio.currentTime = Math.random() * duration
             })
         }
-
         function loadAudio(audio, callback) {
             var table = document.getElementById('BGMtable')
             var checkbox = document.getElementsByClassName('checkbox')
@@ -304,7 +305,7 @@
             audio.load()
             audio.onloadedmetadata = callback
         }
-
+        // 显示答案
         function answer() {
             var game_no = document.getElementById('作品编号')
             var game_name = document.getElementById('作品名称')
@@ -317,7 +318,7 @@
             bgm_chn_title.hidden = false
             girl_name.hidden = false
         }
-
+        // 随机添加10首
         function addRandom() {
             var checkboxs = document.getElementsByClassName('checkbox');
             var rows = document.getElementById('BGMtable').rows
@@ -333,6 +334,33 @@
                     }
                 }
             }
+        }
+        // 下载远程卡牌列表
+        function downloadCardfile() {
+            var selected = document.getElementById('cardfiles')
+            var a = document.getElementById('forDownload')
+            a.href = 'https://hieda-no-tzz.github.io/TouHou/' + selected.value + '.txt'
+            a.title = selected.value + '.txt'
+            a.click()
+        }
+        // 加载远程卡牌列表
+        function loadRemoteCardfile() {
+            var selected = document.getElementById('cardfiles')
+            var url = 'https://hieda-no-tzz.github.io/TouHou/' + selected.value + '.txt'
+            var xhr = new XMLHttpRequest();
+            xhr.open('get', url, true);
+            xhr.onload = function (e) {
+                if (xhr.status == 200) {
+                    var cards = xhr.responseText.split('\n')
+                    loadCards(cards)
+                }
+            };
+            xhr.send();
+        }
+        // 鼠标移动到按钮上选中复选框
+        function check(idx) {
+            var checkboxs = document.getElementsByClassName('checkbox');
+            checkboxs[idx].checked = !checkboxs[idx].checked;
         }
     </script>
     <script type="text/javascript">
