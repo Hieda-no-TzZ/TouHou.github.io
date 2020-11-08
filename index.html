@@ -216,7 +216,7 @@
             order.forEach(function (j) {
                 var cellname = rows[j].cells[5].innerHTML
                 for (k = 0; k < cards.length; ++k) {
-                    if (cellname.trim().trim().replace(/&amp;/g,"&") == cards[k]) {
+                    if (cellname.trim().replace(/&amp;/g,"&") == cards[k].trim()) {
                         checkbox[j].checked = true
                         cards.splice(k, 1)
                         break
