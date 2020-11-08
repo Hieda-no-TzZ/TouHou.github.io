@@ -130,13 +130,19 @@
                 var files = e.target.files;
                 if (files.length == 0) return;
                 var f = files[0];
-                if (!/\.xlsx$/g.test(f.name)) {
-                    alert('仅支持读取xlsx格式！');
+                if (!/\.xlsx$/g.test(f.name) && !/\.csv$/g.test(f.name)) {
+                    alert('仅支持读取xlsx或csv格式！');
                     return;
                 }
-                readWorkbookFromLocalFile(f, function (workbook) {
-                    readWorkbook(workbook);
-                });
+                if (/\.xlsx$/g.test(f.name)) {
+                    readWorkbookFromLocalFile(f, function (workbook) {
+                        readWorkbook(workbook);
+                    });
+                } else {
+                    readCSVFromLocalFile(f, function (workbook) {
+                        readCSV(workbook);
+                    });
+                }
             });
         });
         function readWorkbookFromLocalFile(file, callback) {
@@ -153,6 +159,17 @@
             var worksheet = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
             var csv = XLSX.utils.sheet_to_csv(worksheet);
             // document.getElementById('result').innerHTML = csv2table(csv);
+            modifyTable(csv);
+        }
+        function readCSVFromLocalFile(file, callback) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var csv = e.target.result;
+                if (callback) callback(csv);
+            };
+            reader.readAsText(file);
+        }
+        function readCSV(csv) {
             modifyTable(csv);
         }
         function modifyTable(csv) {
