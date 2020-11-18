@@ -1,5 +1,5 @@
 function answerBlockShiftStart(pageX) {
-	answerBlockShiftStartX = pageX
+    answerBlockShiftStartX = pageX
 }
 
 function answerBlockShiftDuration(pageX) {
@@ -51,3 +51,4 @@ function dealDragMove(ev) {
 function dealDragEnd(ev) {
 	answerBlockShiftEnd(ev.pageX)
 }
+
