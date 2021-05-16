@@ -396,7 +396,7 @@ function addRandom() {
 function downloadCardfile() {
 	var selected = document.getElementById('cardfiles')
 	var a = document.getElementById('forDownload')
-	a.href = 'https://hieda-no-tzz.github.io/TouHou/' + selected.value + '.txt'
+	a.href = 'https://hieda-no-tzz.github.io/TouHou.github.io/' + selected.value + '.txt'
 	a.title = selected.value + '.txt'
 	a.click()
 }
@@ -404,7 +404,7 @@ function downloadCardfile() {
 // 加载远程卡牌列表
 function loadRemoteCardfile() {
 	var selected = document.getElementById('cardfiles')
-	var url = 'https://hieda-no-tzz.github.io/TouHou/' + selected.value + '.txt'
+	var url = 'https://hieda-no-tzz.github.io/TouHou.github.io/' + selected.value + '.txt'
 	var xhr = new XMLHttpRequest();
 	xhr.open('get', url, true);
 	xhr.onload = function (e) {
@@ -423,7 +423,7 @@ function check(idx) {
 }
 
 // 自动加载远程excel
-readWorkbookFromRemoteFile('https://hieda-no-tzz.github.io/TouHou/角色曲列表.xlsx', function (workbook) {
+readWorkbookFromRemoteFile('https://hieda-no-tzz.github.io/TouHou.github.io/角色曲列表.xlsx', function (workbook) {
 	readWorkbook(workbook);
 });
 
