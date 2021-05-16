@@ -423,7 +423,7 @@ function check(idx) {
 }
 
 // 自动加载远程excel
-readWorkbookFromRemoteFile('https://hieda-no-tzz.github.io/TouHou/角色曲列表.xlsx', function (workbook) {
+readWorkbookFromRemoteFile('https://hieda-no-tzz.github.io/TouHou/新角色曲列表.xlsx', function (workbook) {
 	readWorkbook(workbook);
 });
 
